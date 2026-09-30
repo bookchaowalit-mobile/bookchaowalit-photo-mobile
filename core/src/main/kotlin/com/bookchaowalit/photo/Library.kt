@@ -13,18 +13,23 @@ object Library {
             .groupBy { it.takenAt.atZone(zone).toLocalDate() }
             .toList()
 
-    /** Album name -> photo count, sorted by name; "Favorites" is a virtual album. */
+    /**
+     * Album name -> photo count, sorted by name. "Favorites" is a virtual album
+     * (photos marked favorite); a user album with the same name is merged into
+     * it, and each photo is counted at most once per album.
+     */
     fun albumCounts(photos: List<Photo>): Map<String, Int> {
         val counts = sortedMapOf<String, Int>()
         for (p in photos) {
-            for (a in p.albums) counts[a] = (counts[a] ?: 0) + 1
-            if (p.favorite) counts[FAVORITES] = (counts[FAVORITES] ?: 0) + 1
+            for (a in albumsOf(p)) counts[a] = (counts[a] ?: 0) + 1
         }
         return counts
     }
 
     fun inAlbum(photos: List<Photo>, album: String): List<Photo> =
-        photos.filter { if (album == FAVORITES) it.favorite else album in it.albums }.sortedByDescending { it.takenAt }
+        photos.filter { album in albumsOf(it) }.sortedByDescending { it.takenAt }
+
+    private fun albumsOf(p: Photo): Set<String> = if (p.favorite) p.albums + FAVORITES else p.albums
 
     const val FAVORITES = "Favorites"
 }
