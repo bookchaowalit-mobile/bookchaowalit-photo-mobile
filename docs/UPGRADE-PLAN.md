@@ -31,3 +31,10 @@ Compose UI is still a placeholder and the Android build is unverified locally.
 - Fixed: a favourite photo that was also in a user album named "Favorites" was counted twice, and `inAlbum("Favorites")` ignored that user album; counts and listing now agree (union, one count per photo).
 - 7 more edge-case tests (12 total): Favorites merge, empty library, timeline zone, size/rotation validation, crops of extreme images stay in bounds, 1px fit, justified rows keep order and exact widths. Verified with `./gradlew -p core test --offline`.
 - Still not verified locally: the Compose `app/` (no Android SDK; dl.google.com is blocked here).
+
+## Done in this pass (pass 3)
+
+- Fixed duplicate photo ids (same photo synced twice) being counted twice in `albumCounts` and listed twice in `inAlbum`/`timeline`, contradicting "counted at most once per album".
+- Album names are trimmed and blank / zero-width-only names (`""`, `"​"`) are ignored instead of appearing as an empty album; album list is sorted case-insensitively ("beach" no longer sorts after "Zoo").
+- Fixed `justifiedRows` overflow: with a narrow container the gaps alone could exceed the width, producing rows wider than the container; rows now close while each photo still gets 1px.
+- 4 regression tests (16 total), verified with `./gradlew -p core test --offline`.

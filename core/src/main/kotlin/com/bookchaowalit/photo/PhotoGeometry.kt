@@ -49,6 +49,13 @@ object PhotoGeometry {
         var row = mutableListOf<Size>()
         var aspectSum = 0.0
         for (p in photos) {
+            // With narrow containers the gaps alone can use up the width; close the
+            // row while every photo can still get at least 1px instead of overflowing.
+            if (row.isNotEmpty() && containerWidth - gap * row.size < row.size + 1) {
+                val available = containerWidth - gap * (row.size - 1)
+                rows += scaleRow(row, available, available / aspectSum)
+                row = mutableListOf(); aspectSum = 0.0
+            }
             row += p
             aspectSum += p.aspect
             val available = containerWidth - gap * (row.size - 1)
